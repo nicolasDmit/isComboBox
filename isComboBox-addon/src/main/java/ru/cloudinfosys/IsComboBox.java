@@ -100,6 +100,11 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     private boolean openByClick = false;
 
+    /**
+     * Смешанный фильтр
+     */
+    private boolean mixedFilter;
+
     private IsComboBox.ItemStyleGenerator itemStyleGenerator = null;
 
     public IsComboBox() {
@@ -382,6 +387,22 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
         return openByClick;
     }
 
+    /**
+     * Установка флага смешанного фильтра
+     * @param mixedFilter
+     */
+    public void setMixedFilter(boolean mixedFilter) {
+        this.mixedFilter = mixedFilter;
+    }
+
+    /**
+     * Возвращает статус смешанного фильтра
+     * @return
+     */
+    public boolean isMixedFilter() {
+        return mixedFilter;
+    }
+
     @Override
     protected ComboBoxState getState() {
         return (ComboBoxState) super.getState();
@@ -486,23 +507,38 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * @param filteringMode
      * @return
      */
-    protected Filter buildFilter(String filterString,
-                                 FilteringMode filteringMode) {
+    protected Filter buildFilter(String filterString, FilteringMode filteringMode) {
         Filter filter = null;
 
         if (null != filterString && !"".equals(filterString)) {
-            switch (filteringMode) {
-                case OFF:
-                    break;
-                case STARTSWITH:
-                    filter = new SimpleStringFilter(getItemCaptionPropertyId(),
-                            filterString, true, true);
-                    break;
-                case CONTAINS:
-                    filter = new SimpleStringFilter(getItemCaptionPropertyId(),
+
+            if (mixedFilter) {
+                char firstChar = filterString.charAt(0);
+
+                if (Character.isLetter(firstChar)) {
+                    filter = new SimpleStringFilter(this.getItemCaptionPropertyId(),
                             filterString, true, false);
-                    break;
+                } else {
+                    filter = new SimpleStringFilter(this.getItemCaptionPropertyId(),
+                            filterString, true, true);
+                }
+
+            } else {
+                switch (filteringMode) {
+                    case OFF:
+                        break;
+                    case STARTSWITH:
+                        filter = new SimpleStringFilter(getItemCaptionPropertyId(),
+                                filterString, true, true);
+                        break;
+                    case CONTAINS:
+                        filter = new SimpleStringFilter(getItemCaptionPropertyId(),
+                                filterString, true, false);
+                        break;
+                }
             }
+
+
         }
         return filter;
     }
