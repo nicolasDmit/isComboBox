@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ru.cloudinfosys</groupId>
+	<artifactId>isComboBox-demo</artifactId>
+	<packaging>war</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>IsComboBox Add-on Demo</name>
+
+	<prerequisites>
+		<maven>3</maven>
+	</prerequisites>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<vaadin.version>7.7.8</vaadin.version>
+		<vaadin.plugin.version>7.7.8</vaadin.plugin.version>
+		<jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
+	</properties>
+
+    <!--
+	<organization>
+		<name>My Name</name>
+		<url>https://github.com/mygithubaccount/MyComponent/</url>
+	</organization>
+
+	<scm>
+		<url>git://github.com/mygithubaccoIsComboBoxnent.git</url>
+		<connection>scm:git:git://github.com/mygithubaccoIsComboBoxnent.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:/mygithubaccount/${componentClassName}.git</developerConnection>
+		<IsComboBoxnent add-on for Vaadin</tag>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/mygithubaccount/MyComponent/issues</url>
+	</issueManagement>
+    -->
+
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>ru.cloudinfosys</groupId>
+			<artifactId>isComboBox</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>VAADIN/gwt-unitCache/**</exclude>
+					<exclude>VAADIN/widgetsets/WEB-INF/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.plugin.version}</version>
+				<configuration>
+					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+					<webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets</webappDirectory>
+					<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp>
+					<noServer>true</noServer>
+					<draftCompile>false</draftCompile>
+					<compileReport>true</compileReport>
+					<style>OBF</style>
+					<strict>true</strict>
+					<runTarget>http://localhost:8080/is-combo-box/</runTarget>
+				</configuration>
+				<executions>
+					<!-- You are free to mark this as permanently ignored in Eclipse -->
+					<execution>
+						<configuration>
+							<!-- if you don't specify any modules, the plugin will find them -->
+						</configuration>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<archive>
+						<index>true</index>
+						<manifest>
+							<addClasspath>false</addClasspath>
+						</manifest>
+						<manifestEntries>
+							<url>${project.url}</url>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<!-- The Jetty plugin allows us to easily test the development build by -->
+			<!-- running jetty:run on the command line. -->
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty.plugin.version}</version>
+				<configuration>
+					<scanIntervalSeconds>2</scanIntervalSeconds>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+</project>
