@@ -493,7 +493,11 @@ public class IsComboBoxWidget extends Composite
 
             final int index = menu.getSelectedIndex() - 1;
             if (index > -1) {
-                selectItem(menu.getItems().get(index));
+                //selectItem(menu.getItems().get(index));
+
+                if (!selectPrevEnabledItem(index)) {
+                    selectPrevPage();
+                }
 
             } else if (index == -1) {
                 selectPrevPage();
@@ -1802,6 +1806,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Установить статус открытия списка по нажатию на текстовое поле
+     *
      * @param openByClick
      */
     public void setOpenByClick(boolean openByClick) {
@@ -2329,12 +2334,12 @@ public class IsComboBoxWidget extends Composite
      */
     public native int minWidth(String captions)
     /*-{
-        if(!captions || captions.length <= 0)
+        if (!captions || captions.length <= 0)
             return 0;
         captions = captions.split("|");
         var d = $wnd.document.createElement("div");
         var html = "";
-        for(var i=0; i < captions.length; i++) {
+        for (var i = 0; i < captions.length; i++) {
             html += "<div>" + captions[i] + "</div>";
             // TODO apply same CSS classname as in suggestionmenu
         }

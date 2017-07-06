@@ -29,6 +29,7 @@ public class DemoUI extends UI {
     private static final String CAPTION_PROPERTY = "caption";
     private static final String DESCRIPTION_PROPERTY = "description";
     private static final String INDEX_PROPERTY = "index";
+    private static final String DISABLED = "disabled";
 
     @SuppressWarnings("unchecked")
     private static IndexedContainer generateContainer(final int size, final boolean hierarchical) {
@@ -38,6 +39,7 @@ public class DemoUI extends UI {
 
         container.addContainerProperty(INDEX_PROPERTY, Integer.class, null);
         container.addContainerProperty(DESCRIPTION_PROPERTY, String.class, null);
+        container.addContainerProperty(DISABLED, Boolean.class, false);
 
         for (int i = 1; i < size + 1; i++) {
             final Item item = container.addItem(i);
@@ -47,6 +49,8 @@ public class DemoUI extends UI {
                     .setValue(i);
             item.getItemProperty(DESCRIPTION_PROPERTY)
                     .setValue(sg.nextString(true) + " " + sg.nextString(false) + " " + sg.nextString(false));
+            item.getItemProperty(DISABLED)
+                    .setValue(i % 2 > 0);
 
         }
 
@@ -98,10 +102,11 @@ public class DemoUI extends UI {
         component.setContainerDataSource(indexedContainer);
 
         component.setItemCaptionPropertyId(CAPTION_PROPERTY);
+        component.setItemDisabledPropertyId(DISABLED);
 
-        component.setItemEnabled(4, false);
-        component.setItemEnabled(5, false);
-        component.setItemEnabled(6, false);
+//        component.setItemEnabled(4, false);
+//        component.setItemEnabled(5, false);
+//        component.setItemEnabled(6, false);
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();

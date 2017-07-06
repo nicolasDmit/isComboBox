@@ -1,6 +1,7 @@
 package ru.cloudinfosys;
 
 import com.vaadin.data.Container;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.server.PaintException;
@@ -91,7 +92,10 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     private String suggestionPopupWidth = null;
 
-    private final Set<Object> disabledIds = new HashSet<Object>();
+    private final Set<Object> disabledIds = new HashSet<>();
+
+    private Object itemDisabledPropertyId = null;
+    private boolean itemDisabledPropertyInverted = false;
 
     /**
      * If text input is not allowed, the ComboBox behaves like a pretty
@@ -295,7 +299,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
                     selectedKeys[keyIndex++] = key;
                 }
 
-                target.addAttribute("disabled", disabledIds.contains(id));
+                target.addAttribute("disabled", disabledIds.contains(id) || isItemDisabled(id));
 
                 paintItemStyle(target, id);
 
@@ -1024,4 +1028,58 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
         }
     }
 
+    public Object getItemDisabledPropertyId() {
+        return itemDisabledPropertyId;
+    }
+
+    public boolean isItemDisabledPropertyInverted() {
+        return itemDisabledPropertyInverted;
+    }
+
+    /**
+     * Установить ID свойства, по значению которого будет определяться,
+     * включен элемент для выбора или нет
+     * @param propertyId имя свойства в контейнере
+     */
+    public void setItemDisabledPropertyId(Object propertyId, boolean inverted) {
+        this.itemDisabledPropertyId = propertyId;
+        this.itemDisabledPropertyInverted = inverted;
+        markAsDirty();
+    }
+
+    public void setItemDisabledPropertyId(Object propertyId) {
+        setItemDisabledPropertyId(propertyId, false);
+    }
+
+    /**
+     * Проверка, что элемент выключен для выбора по назначенному свойству контейнера
+     * @param itemId id элемента
+     * @return признак выключенности
+     */
+    public Boolean isItemDisabled(Object itemId) {
+
+        if (getItemDisabledPropertyId() == null) {
+            return false;
+        }
+
+        final Property<?> p = getContainerProperty(itemId, getItemDisabledPropertyId());
+        if (p != null) {
+            Object value = p.getValue();
+            if (value == null) {
+                return false;
+            }
+            Boolean retValue = false;
+
+            if (value instanceof Boolean) {
+                retValue = (Boolean) value;
+            } else if (value instanceof Number) {
+                int numValue = ((Number) value).intValue();
+                retValue = (numValue > 0);
+            }
+
+            return isItemDisabledPropertyInverted() ?  !retValue : retValue;
+        }
+
+        return false;
+    }
 }
