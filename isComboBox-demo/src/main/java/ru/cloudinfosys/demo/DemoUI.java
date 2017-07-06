@@ -99,6 +99,10 @@ public class DemoUI extends UI {
 
         component.setItemCaptionPropertyId(CAPTION_PROPERTY);
 
+        component.setItemEnabled(4, false);
+        component.setItemEnabled(5, false);
+        component.setItemEnabled(6, false);
+
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
         layout.setStyleName("demoContentLayout");

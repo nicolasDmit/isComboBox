@@ -91,6 +91,8 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     private String suggestionPopupWidth = null;
 
+    private final Set<Object> disabledIds = new HashSet<Object>();
+
     /**
      * If text input is not allowed, the ComboBox behaves like a pretty
      * NativeSelect - the user can not enter any text and clicking the text
@@ -292,6 +294,8 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
                     // at most one item can be selected at a time
                     selectedKeys[keyIndex++] = key;
                 }
+
+                target.addAttribute("disabled", disabledIds.contains(id));
 
                 paintItemStyle(target, id);
 
@@ -1004,6 +1008,20 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      */
     public IsComboBox.ItemStyleGenerator getItemStyleGenerator() {
         return itemStyleGenerator;
+    }
+
+    /**
+     * Enables or disables a single item
+     *
+     * @param itemId
+     * @param enabled
+     */
+    public void setItemEnabled(Object itemId, boolean enabled) {
+        if (enabled) {
+            disabledIds.remove(itemId);
+        } else {
+            disabledIds.add(itemId);
+        }
     }
 
 }
