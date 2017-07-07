@@ -1385,9 +1385,14 @@ public class IsComboBoxWidget extends Composite
      */
     public int pageLength = 10;
 
-    private boolean enableDebug = false;
+    private boolean hasSelectBtn = false;
+    private boolean hasClearBtn = false;
+    private boolean hasOpenBtn = false;
+
+    private boolean enableDebug = true;
 
     private final FlowPanel panel = new FlowPanel();
+    private final FlowPanel buttonsPanel = new FlowPanel();
 
     /**
      * The text box where the filter is written
@@ -1414,6 +1419,54 @@ public class IsComboBoxWidget extends Composite
          * .user.client.Event)
          */
 
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+
+            /*
+             * Prevent the keyboard focus from leaving the textfield by
+             * preventing the default behaviour of the browser. Fixes #4285.
+             */
+            handleMouseDownEvent(event);
+        }
+    };
+
+    /**
+     * Кнопка выбора
+     */
+    private final HTML selectBtn = new HTML("") {
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+
+            /*
+             * Prevent the keyboard focus from leaving the textfield by
+             * preventing the default behaviour of the browser. Fixes #4285.
+             */
+            handleMouseDownEvent(event);
+        }
+    };
+
+    /**
+     * Кнопка очистки
+     */
+    private final HTML clearBtn = new HTML("") {
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+
+            /*
+             * Prevent the keyboard focus from leaving the textfield by
+             * preventing the default behaviour of the browser. Fixes #4285.
+             */
+            handleMouseDownEvent(event);
+        }
+    };
+
+    /**
+     * Кнопка открытия
+     */
+    private final HTML openBtn = new HTML("") {
         @Override
         public void onBrowserEvent(Event event) {
             super.onBrowserEvent(event);
@@ -1611,7 +1664,11 @@ public class IsComboBoxWidget extends Composite
         Roles.getButtonRole().set(popupOpener.getElement());
 
         panel.add(tb);
-        panel.add(popupOpener);
+
+        buttonsPanel.add(popupOpener);
+
+        panel.add(buttonsPanel);
+
         initWidget(panel);
         Roles.getComboboxRole().set(panel.getElement());
 
@@ -1699,7 +1756,11 @@ public class IsComboBoxWidget extends Composite
 
     protected void updateStyleNames() {
         tb.setStyleName(getStylePrimaryName() + "-input");
-        popupOpener.setStyleName(getStylePrimaryName() + "-button");
+
+        popupOpener.setStyleName(getStylePrimaryName() + "-popup-button");
+
+        buttonsPanel.setStyleName(getStylePrimaryName() + "-buttons-panel");
+
         suggestionPopup.setStyleName(getStylePrimaryName() + "-suggestpopup");
     }
 
@@ -1810,7 +1871,7 @@ public class IsComboBoxWidget extends Composite
      * @param openByClick
      */
     public void setOpenByClick(boolean openByClick) {
-        debug("VFS: setTextInputEnabled()");
+        debug("VFS: setOpenByClick()");
         this.openByClick = openByClick;
     }
 
@@ -1820,9 +1881,7 @@ public class IsComboBoxWidget extends Composite
      * @param text the text to set in the text box
      */
     public void setTextboxText(final String text) {
-        if (enableDebug) {
-            debug("VFS: setTextboxText(" + text + ")");
-        }
+        debug("VFS: setTextboxText(" + text + ")");
         setText(text);
     }
 
@@ -2278,12 +2337,29 @@ public class IsComboBoxWidget extends Composite
     @Override
     public void onClick(ClickEvent event) {
         debug("VFS: onClick()");
+
+        if (event.getNativeEvent().getEventTarget().cast() == openBtn.getElement()) {
+            debug("openButton has clicked");
+            return;
+        }
+
+        if (event.getNativeEvent().getEventTarget().cast() == clearBtn.getElement()) {
+            debug("clearButton has clicked");
+            return;
+        }
+
+        if (event.getNativeEvent().getEventTarget().cast() == selectBtn.getElement()) {
+            debug("selectButton has clicked");
+            return;
+        }
+
         if (textInputEnabled
                 && event.getNativeEvent().getEventTarget().cast() == tb.getElement()
                 && !openByClick) {
             // Don't process clicks on the text field if text input is enabled
             return;
         }
+
         if (enabled && !readonly) {
             // ask suggestionPopup if it was just closed, we are using GWT
             // Popup's auto close feature
@@ -2492,6 +2568,52 @@ public class IsComboBoxWidget extends Composite
         ComponentConnector paintable = ConnectorMap.get(client)
                 .getConnector(this);
 
+
+        //region Кастомные кнопки Выбрать Очистить Открыть
+        if (!initDone) {
+            int tbPadding = 1;
+
+            if (isHasOpenBtn()) {
+                openBtn.sinkEvents(Event.ONMOUSEDOWN);
+                Roles.getButtonRole().setAriaHiddenState(openBtn.getElement(), true);
+                Roles.getButtonRole().set(openBtn.getElement());
+                openBtn.setStyleName(getStylePrimaryName() + "-open-button");
+                openBtn.addClickHandler(this);
+
+                buttonsPanel.add(openBtn);
+
+                tbPadding++;
+            }
+
+            if (isHasClearBtn()) {
+                clearBtn.sinkEvents(Event.ONMOUSEDOWN);
+                Roles.getButtonRole().setAriaHiddenState(clearBtn.getElement(), true);
+                Roles.getButtonRole().set(clearBtn.getElement());
+                clearBtn.setStyleName(getStylePrimaryName() + "-clear-button");
+                clearBtn.addClickHandler(this);
+
+                buttonsPanel.add(clearBtn);
+
+                tbPadding++;
+            }
+
+            if (isHasSelectBtn()) {
+                selectBtn.sinkEvents(Event.ONMOUSEDOWN);
+                Roles.getButtonRole().setAriaHiddenState(selectBtn.getElement(), true);
+                Roles.getButtonRole().set(selectBtn.getElement());
+                selectBtn.setStyleName(getStylePrimaryName() + "-select-button");
+                selectBtn.addClickHandler(this);
+
+                buttonsPanel.add(selectBtn);
+
+                tbPadding++;
+            }
+
+            tb.addStyleName("rightPadding" + String.valueOf(tbPadding));
+
+        }
+        //endregion
+
         if (paintable.isUndefinedWidth()) {
 
             /*
@@ -2527,14 +2649,18 @@ public class IsComboBoxWidget extends Composite
                 int buttonWidth = popupOpener == null ? 0
                         : WidgetUtil.getRequiredWidth(popupOpener);
 
+                int selectBtnWidth = selectBtn != null && hasSelectBtn ? WidgetUtil.getRequiredWidth(selectBtn) : 0;
+                int clearBtnWidth = clearBtn != null && hasClearBtn ? WidgetUtil.getRequiredWidth(clearBtn) : 0;
+                int openBtnWidth = openBtn != null && hasOpenBtn ? WidgetUtil.getRequiredWidth(openBtn) : 0;
+
+                int allButtonsWidth = buttonWidth + selectBtnWidth + clearBtnWidth + openBtnWidth;
                 /*
                  * Instead of setting the width of the wrapper, set the width of
                  * the combobox. Subtract the width of the icon and the
                  * popupopener
                  */
 
-                tb.setWidth((suggestionPopupMinWidth - iconWidth - buttonWidth)
-                        + "px");
+                tb.setWidth((suggestionPopupMinWidth - iconWidth - allButtonsWidth) + "px");
 
             }
 
@@ -2606,10 +2732,17 @@ public class IsComboBoxWidget extends Composite
     public com.google.gwt.user.client.Element getSubPartElement(
             String subPart) {
         String[] parts = subPart.split("/");
+        debug(subPart); //nicolas
         if ("textbox".equals(parts[0])) {
             return tb.getElement();
-        } else if ("button".equals(parts[0])) {
+        } else if ("popup-button".equals(parts[0])) {
             return popupOpener.getElement();
+        } else if ("select-button".equals(parts[0])) {
+            return selectBtn.getElement();
+        } else if ("clear-button".equals(parts[0])) {
+            return clearBtn.getElement();
+        } else if ("open-button".equals(parts[0])) {
+            return openBtn.getElement();
         } else if ("popup".equals(parts[0]) && suggestionPopup.isAttached()) {
             if (parts.length == 2) {
                 return suggestionPopup.menu.getSubPartElement(parts[1]);
@@ -2622,10 +2755,19 @@ public class IsComboBoxWidget extends Composite
     @Override
     public String getSubPartName(
             com.google.gwt.user.client.Element subElement) {
+
+        debug(subElement.getString()); //nicolas
+
         if (tb.getElement().isOrHasChild(subElement)) {
             return "textbox";
         } else if (popupOpener.getElement().isOrHasChild(subElement)) {
-            return "button";
+            return "popup-button";
+        } else if (selectBtn.getElement().isOrHasChild(subElement)) {
+            return "select-button";
+        } else if (clearBtn.getElement().isOrHasChild(subElement)) {
+            return "clear-button";
+        } else if (openBtn.getElement().isOrHasChild(subElement)) {
+            return "open-button";
         } else if (suggestionPopup.getElement().isOrHasChild(subElement)) {
             return "popup";
         }
@@ -2688,5 +2830,54 @@ public class IsComboBoxWidget extends Composite
         return explicitSelectedCaption;
     }
 
+    /**
+     * Признак наличия кнопки выбора
+     * @return признак
+     */
+    public boolean isHasSelectBtn() {
+        return hasSelectBtn;
+    }
 
+    /**
+     * Установить признак наличия кнопки выбора
+     * @param hasSelectBtn признак
+     */
+    public void setHasSelectBtn(boolean hasSelectBtn) {
+        debug("VFS.nicolas: setHasSelectBtn()");
+        this.hasSelectBtn = hasSelectBtn;
+    }
+
+    /**
+     * Получиить признак наличия кнопки очистки
+     * @return признак
+     */
+    public boolean isHasClearBtn() {
+        return hasClearBtn;
+    }
+
+    /**
+     * Установить признак наличия кнопки очистки
+     * @param hasClearBtn признак
+     */
+    public void setHasClearBtn(boolean hasClearBtn) {
+        debug("VFS.nicolas: setHasClearBtn()");
+        this.hasClearBtn = hasClearBtn;
+    }
+
+    /**
+     * Получить признак наличия кнопки открытия
+     * @return признак
+     */
+    public boolean isHasOpenBtn() {
+        return hasOpenBtn;
+    }
+
+    /**
+     * Установить признак наличия кнопки открытия
+     * @param hasOpenBtn признак
+     */
+    public void setHasOpenBtn(boolean hasOpenBtn) {
+        debug("VFS.nicolas: setHasOpenBtn()");
+        this.hasOpenBtn = hasOpenBtn;
+    }
 }

@@ -44,7 +44,7 @@ public class DemoUI extends UI {
         for (int i = 1; i < size + 1; i++) {
             final Item item = container.addItem(i);
             item.getItemProperty(CAPTION_PROPERTY)
-                    .setValue(sg.nextString(true) + " " + sg.nextString(false));
+                    .setValue(sg.nextString(true) + " " + sg.nextString(false) + " " + sg.nextString(false) + " " + sg.nextString(false));
             item.getItemProperty(INDEX_PROPERTY)
                     .setValue(i);
             item.getItemProperty(DESCRIPTION_PROPERTY)
@@ -104,6 +104,14 @@ public class DemoUI extends UI {
         component.setItemCaptionPropertyId(CAPTION_PROPERTY);
         component.setItemDisabledPropertyId(DISABLED);
 
+        component.setHasSelectBtn(true);
+        component.setHasClearBtn(true);
+        component.setHasOpenBtn(true);
+
+        component.setWidth("400px");
+
+
+        //component.setReadOnly(true);
 //        component.setItemEnabled(4, false);
 //        component.setItemEnabled(5, false);
 //        component.setItemEnabled(6, false);

@@ -22,5 +22,8 @@ public class ComboBoxConstants implements Serializable {
     public static final String ATTR_INPUTPROMPT = "prompt";
     public static final String ATTR_NO_TEXT_INPUT = "noInput";
     public static final String ATTR_OPEN_BY_CLICK = "openByClick";
+    public static final String ATTR_HAS_SELECT_BUTTON = "hasSelectBtn";
+    public static final String ATTR_HAS_CLEAR_BUTTON = "hasClearBtn";
+    public static final String ATTR_HAS_OPEN_BUTTON = "hasOpenBtn";
 
 }

@@ -106,6 +106,10 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     private boolean openByClick = false;
 
+    private boolean hasSelectBtn = false;
+    private boolean hasClearBtn = false;
+    private boolean hasOpenBtn = false;
+
     /**
      * Смешанный фильтр
      */
@@ -182,6 +186,18 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
             if (openByClick) {
                 target.addAttribute(ComboBoxConstants.ATTR_OPEN_BY_CLICK, true);
+            }
+
+            if (hasSelectBtn) {
+                target.addAttribute(ComboBoxConstants.ATTR_HAS_SELECT_BUTTON, true);
+            }
+
+            if (hasClearBtn) {
+                target.addAttribute(ComboBoxConstants.ATTR_HAS_CLEAR_BUTTON, true);
+            }
+
+            if (hasOpenBtn) {
+                target.addAttribute(ComboBoxConstants.ATTR_HAS_OPEN_BUTTON, true);
             }
 
             // clear caption change listeners
@@ -425,7 +441,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      *
      * The current container must be {@link Filterable} and {@link Indexed}, and
      * the filtering mode must be suitable for container filtering (tested with
-     * {@link #canUseContainerFilter()}).
+     * {link #canUseContainerFilter()}).
      *
      * Use {@link #getFilteredOptions()} and
      * {@link #sanitizeList(List, boolean)} if this is not the case.
@@ -748,7 +764,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     /**
      * Invoked when the value of a variable has changed.
      *
-     * @see com.vaadin.ui.AbstractComponent#changeVariables(java.lang.Object,
+     * see com.vaadin.ui.AbstractComponent#changeVariables(java.lang.Object,
      *      java.util.Map)
      */
     @Override
@@ -1081,5 +1097,53 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
         }
 
         return false;
+    }
+
+    /**
+     * Признак наличия кнопки выбора
+     * @return признак
+     */
+    public boolean isHasSelectBtn() {
+        return hasSelectBtn;
+    }
+
+    /**
+     * Установить признак наличия кнопки выбора
+     * @param hasSelectBtn признак
+     */
+    public void setHasSelectBtn(boolean hasSelectBtn) {
+        this.hasSelectBtn = hasSelectBtn;
+    }
+
+    /**
+     * Получиить признак наличия кнопки очистки
+     * @return признак
+     */
+    public boolean isHasClearBtn() {
+        return hasClearBtn;
+    }
+
+    /**
+     * Установить признак наличия кнопки очистки
+     * @param hasClearBtn признак
+     */
+    public void setHasClearBtn(boolean hasClearBtn) {
+        this.hasClearBtn = hasClearBtn;
+    }
+
+    /**
+     * Получить признак наличия кнопки открытия
+     * @return признак
+     */
+    public boolean isHasOpenBtn() {
+        return hasOpenBtn;
+    }
+
+    /**
+     * Установить признак наличия кнопки открытия
+     * @param hasOpenBtn признак
+     */
+    public void setHasOpenBtn(boolean hasOpenBtn) {
+        this.hasOpenBtn = hasOpenBtn;
     }
 }

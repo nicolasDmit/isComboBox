@@ -60,6 +60,26 @@ public class IsComboBoxConnector extends AbstractComponentConnector
                 ComboBoxConstants.ATTR_OPEN_BY_CLICK);
         getWidget().setOpenByClick(openByClick);
 
+        //region Дополнительные кнопки для комбобокса Выбор, Очистка, Открытие
+        boolean hasSelectBtn = uidl
+                .hasAttribute(ComboBoxConstants.ATTR_HAS_SELECT_BUTTON)
+                && uidl.getBooleanAttribute(
+                ComboBoxConstants.ATTR_HAS_SELECT_BUTTON);
+        getWidget().setHasSelectBtn(hasSelectBtn);
+
+        boolean hasClearBtn = uidl
+                .hasAttribute(ComboBoxConstants.ATTR_HAS_CLEAR_BUTTON)
+                && uidl.getBooleanAttribute(
+                ComboBoxConstants.ATTR_HAS_CLEAR_BUTTON);
+        getWidget().setHasClearBtn(hasClearBtn);
+
+        boolean hasOpenBtn = uidl
+                .hasAttribute(ComboBoxConstants.ATTR_HAS_OPEN_BUTTON)
+                && uidl.getBooleanAttribute(
+                ComboBoxConstants.ATTR_HAS_OPEN_BUTTON);
+        getWidget().setHasOpenBtn(hasOpenBtn);
+        //endregion
+
         // not a FocusWidget -> needs own tabindex handling
         getWidget().tb.setTabIndex(getState().tabIndex);
 

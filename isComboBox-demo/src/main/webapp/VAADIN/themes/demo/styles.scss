@@ -33,4 +33,72 @@ $darkgreen: darken($green, 30%);
              0px 34px 30px rgba(0,0,0,0.1);
         text-align: center;
 	}
+
+	.v-filterselect-buttons-panel {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 2px;
+		border: none;
+		width: auto;
+	}
+
+	.v-filterselect [class$="button"]:before {
+		font-family: FontAwesome;
+	}
+
+	.v-filterselect .v-filterselect-buttons-panel [class$="button"] {
+		position: relative;
+		display: inline-block;
+		-webkit-tap-highlight-color: transparent;
+		-webkit-touch-callout: none;
+		cursor: pointer;
+		height: 100%;
+		width: 37px;
+		border-left: 1px solid #e4e4e4;
+		color: #a3a3a3;
+	}
+
+	.v-filterselect .v-filterselect-buttons-panel [class$="select-button"]:before {
+		content: "\f141";
+	}
+
+	.v-filterselect .v-filterselect-buttons-panel [class$="clear-button"]:before {
+		content: "\f00d";
+	}
+
+	.v-filterselect .v-filterselect-buttons-panel [class$="open-button"]:before {
+		content: "\f002";
+	}
+
+	/* для отступа текстбокса */
+	.v-filterselect [class*="input"].rightPadding1 {
+		padding-right: 2.4em;
+	}
+
+	.v-filterselect [class*="input"].rightPadding2 {
+		padding-right: 4.8em;
+	}
+
+	.v-filterselect [class*="input"].rightPadding3 {
+		padding-right: 7.1em;
+	}
+
+	.v-filterselect [class*="input"].rightPadding4 {
+		padding-right: 9.5em;
+	}
+
+	.v-filterselect .v-filterselect-buttons-panel [class$="button"]:active:after {
+		background-color: rgba(128, 128, 128, 0.2);
+		border-radius: 0;
+	}
+
+	.v-filterselect.v-readonly .v-filterselect-buttons-panel {
+		display: none;
+	}
+
+	.v-filterselect.v-readonly [class*="input"] {
+		padding-right: 9px;
+	}
+
 }
