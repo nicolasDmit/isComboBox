@@ -10,6 +10,7 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import ru.cloudinfosys.IsComboBox;
@@ -109,6 +110,10 @@ public class DemoUI extends UI {
         component.setHasOpenBtn(true);
 
         component.setWidth("400px");
+
+        component.addValueChangeListener(event -> {
+            Notification.show("the New Value " + component.getValue());
+        });
 
 
         //component.setReadOnly(true);

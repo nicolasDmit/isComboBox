@@ -1447,6 +1447,24 @@ public class IsComboBoxWidget extends Composite
         }
     };
 
+    private Command clearCmd = new Command() {
+        @Override
+        public void execute() {
+            IsComboBoxWidget.this.debug("VFS: clearCmd()");
+
+            //IsComboBoxWidget.this.updateSelectionWhenReponseIsReceived = true;
+            tb.setText("");
+
+            client.updateVariable(paintableId, "filter", "", false);
+            client.updateVariable(paintableId, "page", 0, false);
+            client.updateVariable(paintableId, "selected", new String[]{},
+                    immediate);
+            afterUpdateClientVariables();
+
+            suggestionPopup.hide();
+        }
+    };
+
     /**
      * Кнопка очистки
      */
@@ -2345,6 +2363,8 @@ public class IsComboBoxWidget extends Composite
 
         if (event.getNativeEvent().getEventTarget().cast() == clearBtn.getElement()) {
             debug("clearButton has clicked");
+
+            clearCmd.execute();
             return;
         }
 
