@@ -69,7 +69,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>ru.cloudinfosys</groupId>
+			<groupId>ru.cloudinfosys.is.addons</groupId>
 			<artifactId>isComboBox</artifactId>
 			<version>${project.version}</version>
 		</dependency>

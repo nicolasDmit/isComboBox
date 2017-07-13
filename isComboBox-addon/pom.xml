@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ru.cloudinfosys</groupId>
+	<groupId>ru.cloudinfosys.is.addons</groupId>
 	<artifactId>isComboBox</artifactId>
 	<packaging>jar</packaging>
 	<name>IsComboBox Add-on</name>
@@ -139,7 +139,7 @@
 							<!-- Package format version - do not change -->
 							<Vaadin-Package-Version>1</Vaadin-Package-Version>
 							<Vaadin-License-Title>${Vaadin-License-Title}</Vaadin-License-Title>
-							<Vaadin-Widgetsets>ru.cloudinfosys.WidgetSet</Vaadin-Widgetsets>
+							<Vaadin-Widgetsets>ru.cloudinfosys.isComboBox.IsComboBoxWidgetSet</Vaadin-Widgetsets>
 						</manifestEntries>
 					</archive>
 				</configuration>

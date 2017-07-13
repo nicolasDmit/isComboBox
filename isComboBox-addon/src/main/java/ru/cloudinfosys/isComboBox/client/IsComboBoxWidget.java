@@ -1,4 +1,4 @@
-package ru.cloudinfosys.client;
+package ru.cloudinfosys.isComboBox.client;
 
 import com.google.gwt.aria.client.Roles;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -24,8 +24,8 @@ import com.vaadin.shared.EventId;
 import com.vaadin.shared.ui.ComponentStateUtil;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.util.SharedUtil;
-import ru.cloudinfosys.client.isMenuExt.MenuBar;
-import ru.cloudinfosys.client.isMenuExt.MenuItem;
+import ru.cloudinfosys.isComboBox.client.isMenuExt.MenuBar;
+import ru.cloudinfosys.isComboBox.client.isMenuExt.MenuItem;
 
 import java.util.*;
 
@@ -34,6 +34,12 @@ public class IsComboBoxWidget extends Composite
         implements Field, KeyDownHandler, KeyUpHandler, ClickHandler,
         FocusHandler, BlurHandler, Focusable, SubPartAware, HandlesAriaCaption,
         HandlesAriaInvalid, HandlesAriaRequired, DeferredWorker {
+
+    private IsComboBoxConnector connector;
+
+    public void setConnector(IsComboBoxConnector connector) {
+        this.connector = connector;
+    }
 
     /**
      * Represents a suggestion in the suggestion popup box
@@ -193,7 +199,7 @@ public class IsComboBoxWidget extends Composite
                     deltaY = -0.5 * e.wheelDelta;
                 }
 
-                @ru.cloudinfosys.client.IsComboBoxWidget.IsJsniUtil::moveScrollFromEvent(*)(widget, deltaX, deltaY, e, e.deltaMode);
+                @ru.cloudinfosys.isComboBox.client.IsComboBoxWidget.IsJsniUtil::moveScrollFromEvent(*)(widget, deltaX, deltaY, e, e.deltaMode);
             });
         }-*/;
 
@@ -1452,7 +1458,6 @@ public class IsComboBoxWidget extends Composite
         public void execute() {
             IsComboBoxWidget.this.debug("VFS: clearCmd()");
 
-            //IsComboBoxWidget.this.updateSelectionWhenReponseIsReceived = true;
             tb.setText("");
 
             client.updateVariable(paintableId, "filter", "", false);
@@ -1699,6 +1704,7 @@ public class IsComboBoxWidget extends Composite
 
         popupOpener.addClickHandler(this);
 
+        setStylePrimaryName(CLASSNAME);
         setStyleName(CLASSNAME);
 
         sinkEvents(Event.ONPASTE);
@@ -1773,6 +1779,7 @@ public class IsComboBoxWidget extends Composite
     }
 
     protected void updateStyleNames() {
+        debug("primary style = " + getStylePrimaryName());
         tb.setStyleName(getStylePrimaryName() + "-input");
 
         popupOpener.setStyleName(getStylePrimaryName() + "-popup-button");
@@ -2358,18 +2365,19 @@ public class IsComboBoxWidget extends Composite
 
         if (event.getNativeEvent().getEventTarget().cast() == openBtn.getElement()) {
             debug("openButton has clicked");
+            connector.rpc.openBtnClick();
             return;
         }
 
         if (event.getNativeEvent().getEventTarget().cast() == clearBtn.getElement()) {
             debug("clearButton has clicked");
-
             clearCmd.execute();
             return;
         }
 
         if (event.getNativeEvent().getEventTarget().cast() == selectBtn.getElement()) {
             debug("selectButton has clicked");
+            connector.rpc.selectBtnClick();
             return;
         }
 
@@ -2599,6 +2607,13 @@ public class IsComboBoxWidget extends Composite
                 Roles.getButtonRole().set(openBtn.getElement());
                 openBtn.setStyleName(getStylePrimaryName() + "-open-button");
                 openBtn.addClickHandler(this);
+
+                openBtn.addHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        IsComboBoxWidget.this.fireEvent(event);
+                    }
+                }, ClickEvent.getType());
 
                 buttonsPanel.add(openBtn);
 
@@ -2852,6 +2867,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Признак наличия кнопки выбора
+     *
      * @return признак
      */
     public boolean isHasSelectBtn() {
@@ -2860,6 +2876,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Установить признак наличия кнопки выбора
+     *
      * @param hasSelectBtn признак
      */
     public void setHasSelectBtn(boolean hasSelectBtn) {
@@ -2869,6 +2886,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Получиить признак наличия кнопки очистки
+     *
      * @return признак
      */
     public boolean isHasClearBtn() {
@@ -2877,6 +2895,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Установить признак наличия кнопки очистки
+     *
      * @param hasClearBtn признак
      */
     public void setHasClearBtn(boolean hasClearBtn) {
@@ -2886,6 +2905,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Получить признак наличия кнопки открытия
+     *
      * @return признак
      */
     public boolean isHasOpenBtn() {
@@ -2894,6 +2914,7 @@ public class IsComboBoxWidget extends Composite
 
     /**
      * Установить признак наличия кнопки открытия
+     *
      * @param hasOpenBtn признак
      */
     public void setHasOpenBtn(boolean hasOpenBtn) {

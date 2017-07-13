@@ -1,4 +1,4 @@
-package ru.cloudinfosys;
+package ru.cloudinfosys.isComboBox;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
@@ -7,9 +7,10 @@ import com.vaadin.event.FieldEvents;
 import com.vaadin.server.PaintException;
 import com.vaadin.server.PaintTarget;
 import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.combobox.ComboBoxState;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.*;
+import ru.cloudinfosys.isComboBox.client.IsComboBoxServerRpc;
+import ru.cloudinfosys.isComboBox.client.IsComboBoxState;
 
 import java.io.Serializable;
 import java.util.*;
@@ -18,28 +19,53 @@ import java.util.*;
 // for IsComboBox
 public class IsComboBox extends com.vaadin.ui.AbstractSelect
         implements AbstractSelect.Filtering, FieldEvents.BlurNotifier,
-        FieldEvents.FocusNotifier{
+        FieldEvents.FocusNotifier {
+
+    private Runnable onSelectClick;
+    private Runnable onOpenClick;
+
+    private IsComboBoxServerRpc rpc = new IsComboBoxServerRpc() {
+        @Override
+        public void selectBtnClick() {
+            if (onSelectClick != null) {
+                onSelectClick.run();
+            }
+        }
+
+        @Override
+        public void openBtnClick() {
+            if (onOpenClick != null) {
+                onOpenClick.run();
+            }
+        }
+    };
+
+    public void setOnSelectClick(Runnable onSelectClick) {
+        this.onSelectClick = onSelectClick;
+    }
+
+    public void setOnOpenClick(Runnable onOpenClick) {
+        this.onOpenClick = onOpenClick;
+    }
 
     /**
      * ItemStyleGenerator can be used to add custom styles to combo box items
      * shown in the popup. The CSS class name that will be added to the item
      * style names is <tt>v-filterselect-item-[style name]</tt>.
      *
-     * @since 7.5.6
      * @see ComboBox#setItemStyleGenerator(ComboBox.ItemStyleGenerator)
+     * @since 7.5.6
      */
     public interface ItemStyleGenerator extends Serializable {
 
         /**
          * Called by ComboBox when an item is painted.
          *
-         * @param source
-         *            the source combo box
-         * @param itemId
-         *            The itemId of the item to be painted. Can be
-         *            <code>null</code> if null selection is allowed.
+         * @param source the source combo box
+         * @param itemId The itemId of the item to be painted. Can be
+         *               <code>null</code> if null selection is allowed.
          * @return The style name to add to this item. (the CSS class name will
-         *         be v-filterselect-item-[style name]
+         * be v-filterselect-item-[style name]
          */
         public String getStyle(IsComboBox source, Object itemId);
     }
@@ -84,7 +110,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Flag to indicate whether to scroll the selected item visible (select the
      * page on which it is) when opening the popup or not. Only applies to
      * single select mode.
-     *
+     * <p>
      * This requires finding the index of the item, which can be expensive in
      * many large lazy loading containers.
      */
@@ -142,13 +168,15 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     private void initDefaults() {
         setNewItemsAllowed(false);
         setImmediate(true);
+
+        registerRpc(rpc);
     }
 
     /**
      * Gets the current input prompt.
      *
-     * @see #setInputPrompt(String)
      * @return the current input prompt, or null if not enabled
+     * @see #setInputPrompt(String)
      */
     public String getInputPrompt() {
         return inputPrompt;
@@ -158,8 +186,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Sets the input prompt - a textual prompt that is displayed when the
      * select would otherwise be empty, to prompt the user for input.
      *
-     * @param inputPrompt
-     *            the desired input prompt, or null to disable
+     * @param inputPrompt the desired input prompt, or null to disable
      */
     public void setInputPrompt(String inputPrompt) {
         this.inputPrompt = inputPrompt;
@@ -371,11 +398,9 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * disabling text input, the comboBox will work in the same way as a
      * {@link NativeSelect}
      *
+     * @param textInputAllowed true to allow entering text, false to just show the current
+     *                         selection
      * @see #isTextInputAllowed()
-     *
-     * @param textInputAllowed
-     *            true to allow entering text, false to just show the current
-     *            selection
      */
     public void setTextInputAllowed(boolean textInputAllowed) {
         this.textInputAllowed = textInputAllowed;
@@ -397,6 +422,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Позволять открывать список по клику в текстовом поле
+     *
      * @param openByClick true позволить открывать сприсок по нажатию в текстовом поле иначе обычное поведение
      */
     public void setOpenByClick(boolean openByClick) {
@@ -405,6 +431,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Получить статус флага открывать список по клику в текстовом поле
+     *
      * @return
      */
     public boolean isOpenByClick() {
@@ -413,6 +440,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Установка флага смешанного фильтра
+     *
      * @param mixedFilter
      */
     public void setMixedFilter(boolean mixedFilter) {
@@ -421,6 +449,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Возвращает статус смешанного фильтра
+     *
      * @return
      */
     public boolean isMixedFilter() {
@@ -428,27 +457,27 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     }
 
     @Override
-    protected ComboBoxState getState() {
-        return (ComboBoxState) super.getState();
+    protected IsComboBoxState getState() {
+        return (IsComboBoxState) super.getState();
     }
 
     /**
      * Returns the filtered options for the current page using a container
      * filter.
-     *
+     * <p>
      * As a size effect, {@link #filteredSize} is set to the total number of
      * items passing the filter.
-     *
+     * <p>
      * The current container must be {@link Filterable} and {@link Indexed}, and
      * the filtering mode must be suitable for container filtering (tested with
      * {link #canUseContainerFilter()}).
-     *
+     * <p>
      * Use {@link #getFilteredOptions()} and
      * {@link #sanitizeList(List, boolean)} if this is not the case.
      *
      * @param needNullSelectOption
      * @return filtered list of options (may be empty) or null if cannot use
-     *         container filters
+     * container filters
      */
     protected List<?> getOptionsWithFilter(boolean needNullSelectOption) {
         Container container = getContainerDataSource();
@@ -522,7 +551,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     /**
      * Constructs a filter instance to use when using a Filterable container in
      * the <code>ITEM_CAPTION_MODE_PROPERTY</code> mode.
-     *
+     * <p>
      * Note that the client side implementation expects the filter string to
      * apply to the item caption string it sees, so changing the behavior of
      * this method can cause problems.
@@ -587,9 +616,8 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Package private only for testing purposes.
      *
      * @param options
-     * @param needNullSelectOption
-     *            flag to indicate if nullselect option needs to be taken into
-     *            consideration
+     * @param needNullSelectOption flag to indicate if nullselect option needs to be taken into
+     *                             consideration
      */
     List<?> sanitizeList(List<?> options, boolean needNullSelectOption) {
         int totalRows = options.size() + (needNullSelectOption ? 1 : 0);
@@ -626,15 +654,13 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * the underlying (possibly filtered) contents. The null item, if any, does
      * not have an index but takes up a slot on the first page.
      *
-     * @param needNullSelectOption
-     *            true if a null option should be shown before any other options
-     *            (takes up the first slot on the first page, not counted in
-     *            index)
-     * @param size
-     *            number of items after filtering (not including the null item,
-     *            if any)
+     * @param needNullSelectOption true if a null option should be shown before any other options
+     *                             (takes up the first slot on the first page, not counted in
+     *                             index)
+     * @param size                 number of items after filtering (not including the null item,
+     *                             if any)
      * @return first item to show on the UI (index to the filtered list of
-     *         options, not taking the null item into consideration if any)
+     * options, not taking the null item into consideration if any)
      */
     private int getFirstItemIndexOnCurrentPage(boolean needNullSelectOption,
                                                int size) {
@@ -653,15 +679,12 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * true, the null item takes up the first slot on the first page,
      * effectively reducing the first page size by one.
      *
-     * @param needNullSelectOption
-     *            true if a null option should be shown before any other options
-     *            (takes up the first slot on the first page, not counted in
-     *            index)
-     * @param size
-     *            number of items after filtering (not including the null item,
-     *            if any)
-     * @param first
-     *            index in the filtered view of the first item of the page
+     * @param needNullSelectOption true if a null option should be shown before any other options
+     *                             (takes up the first slot on the first page, not counted in
+     *                             index)
+     * @param size                 number of items after filtering (not including the null item,
+     *                             if any)
+     * @param first                index in the filtered view of the first item of the page
      * @return index in the filtered view of the last item on the page
      */
     private int getLastItemIndexOnCurrentPage(boolean needNullSelectOption,
@@ -678,18 +701,14 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * containg a specific item. There are no side effects but the adjusted page
      * index is returned.
      *
-     * @param page
-     *            page number to use as the starting point
-     * @param needNullSelectOption
-     *            true if a null option should be shown before any other options
-     *            (takes up the first slot on the first page, not counted in
-     *            index)
-     * @param indexToEnsureInView
-     *            index of an item that should be included on the page (in the
-     *            data set, not counting the null item if any), -1 for none
-     * @param size
-     *            number of items after filtering (not including the null item,
-     *            if any)
+     * @param page                 page number to use as the starting point
+     * @param needNullSelectOption true if a null option should be shown before any other options
+     *                             (takes up the first slot on the first page, not counted in
+     *                             index)
+     * @param indexToEnsureInView  index of an item that should be included on the page (in the
+     *                             data set, not counting the null item if any), -1 for none
+     * @param size                 number of items after filtering (not including the null item,
+     *                             if any)
      */
     private int adjustCurrentPage(int page, boolean needNullSelectOption,
                                   int indexToEnsureInView, int size) {
@@ -707,7 +726,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Filters the options in memory and returns the full filtered list.
-     *
+     * <p>
      * This can be less efficient than using container filters, so use
      * {@link #getOptionsWithFilter(boolean)} if possible (filterable container
      * and suitable item caption mode etc.).
@@ -735,7 +754,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
         prevfilterstring = filterstring;
 
         filteredOptions = new LinkedList<Object>();
-        for (final Iterator<?> it = items.iterator(); it.hasNext();) {
+        for (final Iterator<?> it = items.iterator(); it.hasNext(); ) {
             final Object itemId = it.next();
             String caption = getItemCaption(itemId);
             if (caption == null || caption.equals("")) {
@@ -763,9 +782,9 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Invoked when the value of a variable has changed.
-     *
+     * <p>
      * see com.vaadin.ui.AbstractComponent#changeVariables(java.lang.Object,
-     *      java.util.Map)
+     * java.util.Map)
      */
     @Override
     public void changeVariables(Object source, Map<String, Object> variables) {
@@ -856,7 +875,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * @deprecated As of 7.0, replaced by
-     *             {@link #removeBlurListener(FieldEvents.BlurListener)}
+     * {@link #removeBlurListener(FieldEvents.BlurListener)}
      **/
     @Override
     @Deprecated
@@ -872,7 +891,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * @deprecated As of 7.0, replaced by
-     *             {@link #addFocusListener(FieldEvents.FocusListener)}
+     * {@link #addFocusListener(FieldEvents.FocusListener)}
      **/
     @Override
     @Deprecated
@@ -887,7 +906,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * @deprecated As of 7.0, replaced by
-     *             {@link #removeFocusListener(FieldEvents.FocusListener)}
+     * {@link #removeFocusListener(FieldEvents.FocusListener)}
      **/
     @Override
     @Deprecated
@@ -898,11 +917,10 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     /**
      * ComboBox does not support multi select mode.
      *
-     * @deprecated As of 7.0, use {@link ListSelect}, {@link OptionGroup} or
-     *             {@link TwinColSelect} instead
+     * @throws UnsupportedOperationException if trying to activate multiselect mode
      * @see com.vaadin.ui.AbstractSelect#setMultiSelect(boolean)
-     * @throws UnsupportedOperationException
-     *             if trying to activate multiselect mode
+     * @deprecated As of 7.0, use {@link ListSelect}, {@link OptionGroup} or
+     * {@link TwinColSelect} instead
      */
     @Deprecated
     @Override
@@ -916,12 +934,10 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     /**
      * ComboBox does not support multi select mode.
      *
-     * @deprecated As of 7.0, use {@link ListSelect}, {@link OptionGroup} or
-     *             {@link TwinColSelect} instead
-     *
-     * @see com.vaadin.ui.AbstractSelect#isMultiSelect()
-     *
      * @return false
+     * @see com.vaadin.ui.AbstractSelect#isMultiSelect()
+     * @deprecated As of 7.0, use {@link ListSelect}, {@link OptionGroup} or
+     * {@link TwinColSelect} instead
      */
     @Deprecated
     @Override
@@ -952,8 +968,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Sets the page length for the suggestion popup. Setting the page length to
      * 0 will disable suggestion popup paging (all items visible).
      *
-     * @param pageLength
-     *            the pageLength to set
+     * @param pageLength the pageLength to set
      */
     public void setPageLength(int pageLength) {
         this.pageLength = pageLength;
@@ -965,10 +980,9 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * units (e.g. "50%") it's possible to set the popup's width relative to the
      * ComboBox itself.
      *
+     * @param width the width
      * @see #getPopupWidth()
      * @since 7.7
-     * @param width
-     *            the width
      */
     public void setPopupWidth(String width) {
         suggestionPopupWidth = width;
@@ -979,13 +993,12 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Sets whether to scroll the selected item visible (directly open the page
      * on which it is) when opening the combo box popup or not. Only applies to
      * single select mode.
-     *
+     * <p>
      * This requires finding the index of the item, which can be expensive in
      * many large lazy loading containers.
      *
-     * @param scrollToSelectedItem
-     *            true to find the page with the selected item when opening the
-     *            selection popup
+     * @param scrollToSelectedItem true to find the page with the selected item when opening the
+     *                             selection popup
      */
     public void setScrollToSelectedItem(boolean scrollToSelectedItem) {
         this.scrollToSelectedItem = scrollToSelectedItem;
@@ -995,10 +1008,9 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Returns true if the select should find the page with the selected item
      * when opening the popup (single select combo box only).
      *
-     * @see #setScrollToSelectedItem(boolean)
-     *
      * @return true if the page with the selected item will be shown when
-     *         opening the popup
+     * opening the popup
+     * @see #setScrollToSelectedItem(boolean)
      */
     public boolean isScrollToSelectedItem() {
         return scrollToSelectedItem;
@@ -1009,9 +1021,8 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * showing items in the popup. The CSS class name that will be added to the
      * item style names is <tt>v-filterselect-item-[style name]</tt>.
      *
-     * @param itemStyleGenerator
-     *            the item style generator to set, or <code>null</code> to not
-     *            use any custom item styles
+     * @param itemStyleGenerator the item style generator to set, or <code>null</code> to not
+     *                           use any custom item styles
      * @since 7.5.6
      */
     public void setItemStyleGenerator(IsComboBox.ItemStyleGenerator itemStyleGenerator) {
@@ -1023,7 +1034,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
      * Gets the currently used item style generator.
      *
      * @return the itemStyleGenerator the currently used item style generator,
-     *         or <code>null</code> if no generator is used
+     * or <code>null</code> if no generator is used
      * @since 7.5.6
      */
     public IsComboBox.ItemStyleGenerator getItemStyleGenerator() {
@@ -1055,6 +1066,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
     /**
      * Установить ID свойства, по значению которого будет определяться,
      * включен элемент для выбора или нет
+     *
      * @param propertyId имя свойства в контейнере
      */
     public void setItemDisabledPropertyId(Object propertyId, boolean inverted) {
@@ -1069,6 +1081,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Проверка, что элемент выключен для выбора по назначенному свойству контейнера
+     *
      * @param itemId id элемента
      * @return признак выключенности
      */
@@ -1093,7 +1106,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
                 retValue = (numValue > 0);
             }
 
-            return isItemDisabledPropertyInverted() ?  !retValue : retValue;
+            return isItemDisabledPropertyInverted() ? !retValue : retValue;
         }
 
         return false;
@@ -1101,6 +1114,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Признак наличия кнопки выбора
+     *
      * @return признак
      */
     public boolean isHasSelectBtn() {
@@ -1109,6 +1123,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Установить признак наличия кнопки выбора
+     *
      * @param hasSelectBtn признак
      */
     public void setHasSelectBtn(boolean hasSelectBtn) {
@@ -1117,6 +1132,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Получиить признак наличия кнопки очистки
+     *
      * @return признак
      */
     public boolean isHasClearBtn() {
@@ -1125,6 +1141,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Установить признак наличия кнопки очистки
+     *
      * @param hasClearBtn признак
      */
     public void setHasClearBtn(boolean hasClearBtn) {
@@ -1133,6 +1150,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Получить признак наличия кнопки открытия
+     *
      * @return признак
      */
     public boolean isHasOpenBtn() {
@@ -1141,6 +1159,7 @@ public class IsComboBox extends com.vaadin.ui.AbstractSelect
 
     /**
      * Установить признак наличия кнопки открытия
+     *
      * @param hasOpenBtn признак
      */
     public void setHasOpenBtn(boolean hasOpenBtn) {

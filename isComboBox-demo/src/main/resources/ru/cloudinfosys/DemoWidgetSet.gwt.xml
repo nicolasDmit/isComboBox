@@ -7,7 +7,7 @@
     -->
 
     <!-- Inherit add-on widgetset -->
-    <inherits name="ru.cloudinfosys.WidgetSet" />
+    
 
     <!--
      Uncomment the following to compile the widgetset for one browser only.
@@ -32,4 +32,6 @@
 
     <inherits name="com.vaadin.DefaultWidgetSet" />
 
+
+    <inherits name="ru.cloudinfosys.isComboBox.IsComboBoxWidgetSet" />
 </module>

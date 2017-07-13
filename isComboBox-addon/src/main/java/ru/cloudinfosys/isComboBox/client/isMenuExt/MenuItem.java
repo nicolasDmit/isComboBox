@@ -14,7 +14,7 @@
  * the License.
  */
 
-package ru.cloudinfosys.client.isMenuExt;
+package ru.cloudinfosys.isComboBox.client.isMenuExt;
 
 /*
  * Copyright 2007 Google Inc.

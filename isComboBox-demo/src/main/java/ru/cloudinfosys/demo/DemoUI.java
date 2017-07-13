@@ -9,11 +9,8 @@ import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import ru.cloudinfosys.IsComboBox;
+import com.vaadin.ui.*;
+import ru.cloudinfosys.isComboBox.IsComboBox;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -109,12 +106,22 @@ public class DemoUI extends UI {
         component.setHasClearBtn(true);
         component.setHasOpenBtn(true);
 
+        component.setNullSelectionAllowed(false);
+
         component.setWidth("400px");
 
         component.addValueChangeListener(event -> {
             Notification.show("the New Value " + component.getValue());
         });
 
+
+        component.setOnSelectClick(() -> {
+            Notification.show("Нажата кнопка выбора");
+        });
+
+        component.setOnOpenClick(() -> {
+            Notification.show("Нажата кнопка открытия");
+        });
 
         //component.setReadOnly(true);
 //        component.setItemEnabled(4, false);

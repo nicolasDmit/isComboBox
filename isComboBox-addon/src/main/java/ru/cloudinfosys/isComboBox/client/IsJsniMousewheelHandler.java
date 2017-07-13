@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package ru.cloudinfosys.client;
+package ru.cloudinfosys.isComboBox.client;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
@@ -58,10 +58,10 @@ abstract class IsJsniMousewheelHandler {
         if (element.addEventListener) {
             // FireFox likes "wheel", while others use "mousewheel"
             var eventName = 'onmousewheel' in element ? 'mousewheel' : 'wheel';
-            element.addEventListener(eventName, this.@ru.cloudinfosys.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
+            element.addEventListener(eventName, this.@ru.cloudinfosys.isComboBox.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
         } else {
             // IE8
-            element.attachEvent("onmousewheel", this.@ru.cloudinfosys.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
+            element.attachEvent("onmousewheel", this.@ru.cloudinfosys.isComboBox.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
         }
     }-*/;
 
@@ -70,10 +70,10 @@ abstract class IsJsniMousewheelHandler {
         if (element.addEventListener) {
             // FireFox likes "wheel", while others use "mousewheel"
             var eventName = element.onwheel===undefined?"mousewheel":"wheel";
-            element.removeEventListener(eventName, this.@ru.cloudinfosys.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
+            element.removeEventListener(eventName, this.@ru.cloudinfosys.isComboBox.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
         } else {
             // IE8
-            element.detachEvent("onmousewheel", this.@ru.cloudinfosys.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
+            element.detachEvent("onmousewheel", this.@ru.cloudinfosys.isComboBox.client.IsJsniMousewheelHandler::mousewheelListenerFunction);
         }
     }-*/;
 

@@ -1,16 +1,16 @@
-package ru.cloudinfosys.client;
+package ru.cloudinfosys.isComboBox.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.Paintable;
 import com.vaadin.client.UIDL;
+import com.vaadin.client.communication.RpcProxy;
 import com.vaadin.client.ui.AbstractComponentConnector;
 import com.vaadin.client.ui.SimpleManagedLayout;
 import com.vaadin.shared.ui.Connect;
-import com.vaadin.shared.ui.combobox.ComboBoxState;
 import com.vaadin.shared.ui.combobox.FilteringMode;
-import ru.cloudinfosys.ComboBoxConstants;
-import ru.cloudinfosys.IsComboBox;
+import ru.cloudinfosys.isComboBox.ComboBoxConstants;
+import ru.cloudinfosys.isComboBox.IsComboBox;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,12 +27,21 @@ public class IsComboBoxConnector extends AbstractComponentConnector
     // update textbox text by a changed item caption.
     private boolean oldSuggestionTextMatchTheOldSelection;
 
+    IsComboBoxServerRpc rpc = RpcProxy.create(IsComboBoxServerRpc.class, this);
+
+
+    @Override
+    protected void init() {
+        super.init();
+        getWidget().setConnector(this);
+    }
+
     /*
-     * (non-Javadoc)
-     *
-     * @see com.vaadin.client.Paintable#updateFromUIDL(com.vaadin.client.UIDL,
-     * com.vaadin.client.ApplicationConnection)
-     */
+                 * (non-Javadoc)
+                 *
+                 * @see com.vaadin.client.Paintable#updateFromUIDL(com.vaadin.client.UIDL,
+                 * com.vaadin.client.ApplicationConnection)
+                 */
     @Override
     public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
         // Save details
@@ -304,8 +313,8 @@ public class IsComboBoxConnector extends AbstractComponentConnector
                     // Also update if we've got the same text to
                     // retain old text selection behavior
                     // OR if selected item caption is changed.
-                    getWidget()
-                            .setPromptingOff(suggestion.getReplacementString());
+                    getWidget().setPromptingOff(suggestion.getReplacementString());
+
                     getWidget().selectedOptionKey = suggestionKey;
                 }
             }
@@ -367,8 +376,8 @@ public class IsComboBoxConnector extends AbstractComponentConnector
     }
 
     @Override
-    public ComboBoxState getState() {
-        return (ComboBoxState) super.getState();
+    public IsComboBoxState getState() {
+        return (IsComboBoxState) super.getState();
     }
 
     @Override

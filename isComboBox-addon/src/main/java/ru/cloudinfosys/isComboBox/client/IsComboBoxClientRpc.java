@@ -1,4 +1,4 @@
-package ru.cloudinfosys.client;
+package ru.cloudinfosys.isComboBox.client;
 
 import com.vaadin.shared.communication.ClientRpc;
 
